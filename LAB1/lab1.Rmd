@@ -1,0 +1,170 @@
+---
+title: "LAB 1"
+author: "Jonathan Ifegunni"
+date: "August 26, 2018"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Tasks
+
+## Task 1
+```{r working directory}
+getwd()
+```
+
+## Task 2
+### A (Reading Data into R using the function Read.Table)
+```{r Reading Data into R using the function Read.Table}
+ddt=read.table(file.choose(),sep=",",header=TRUE) 
+head(ddt)
+```
+### B (Reading Data into R using using the function Read.csv)
+```{r Reading Data into R using using the function Read.csv}
+ddt=read.csv("DDT.csv")
+head(ddt)
+```
+## Task 3
+### A
+```{r Qualitative Varibles}
+head(ddt, 3)
+```
+> 
+     After looking at the function head() above, the following are qualitative variables
+>     
+     1. RIVER
+     2. SPECIES
+
+
+### B
+```{r Quantitative variable}
+head(ddt, 3)
+```
+> 
+     After looking at the function head() above, the following are quantitative variables
+>     
+     1. MILE
+     2. LENGHT
+     3. WEIGHT
+     4. DDT
+
+### C
+```{r}
+summary(ddt$SPECIES)
+```
+### D
+```{r}
+with(ddt, ddt[WEIGHT>800 & SPECIES=="LMBASS",])
+```
+### E
+```{r}
+with(ddt, ddt[DDT>4.0 & RIVER=="SCM",])
+```
+## Clicker Questions
+### Q.1
+>
+    The Mean Lenght of fish in the ddt dataframe is 42.8125
+    
+```{r}
+mean(ddt$LENGTH)
+```
+### Q.2
+>
+The standard deviations of the Weight of fish is 376.5461
+
+```{r}
+sd(ddt$WEIGHT)
+```
+
+
+### Q.3
+>
+    NO - The plot shown is a plot of Weight vs Lenght and not Lenght vs Weight in the question.
+    
+```{r}
+plot(WEIGHT~LENGTH,data=ddt)
+```
+    
+    
+### Q.4
+>
+   The last value of v/20 is 20
+   
+```{r}
+v=1:20
+v
+```
+
+## Task 4
+### A and B
+```{r}
+sn=with(ddt,table(RIVER))
+sn
+barplot(sn, col=1:4)
+```
+
+### C and D
+```{r}
+spriv=with(ddt,table(RIVER, SPECIES))
+spriv
+barplot(spriv)
+```
+
+## TASK 5
+### A
+```{r}
+sp=with(ddt,table(SPECIES))
+pie(sp,col=1:4)
+```
+
+### B
+```{r}
+pie(sn,col=1:4)
+```
+
+## TASK 6
+
+### A
+```{r}
+boxplot(ddt$DDT)
+
+```
+
+### B
+```{r}
+boxplot(ddt$WEIGHT)
+
+```
+
+### C
+```{r}
+boxplot(ddt$LENGTH)
+
+```
+
+## TASK 7
+
+### A
+```{r}
+coplot(LENGTH~WEIGHT|RIVER,data=ddt)
+
+```
+
+### B
+```{r}
+coplot(DDT~WEIGHT|SPECIES,data=ddt)
+
+```
+
+## TASK 8
+```{r}
+library(ggplot2)
+g= ggplot(ddt, aes(x=SPECIES, y= WEIGHT, fill = RIVER)) + geom_boxplot()+ggtitle("JONATHAN IFEGUNNI")
+print(g)
+
+```
+
