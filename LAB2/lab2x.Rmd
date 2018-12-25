@@ -1,0 +1,109 @@
+---
+title: "Lab2"
+author: "JONATHAN IFEGUNNI"
+date: "August 30, 2018"
+output: 
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Task 1
+```{r}
+getwd()
+```
+
+# Task 2
+
+```{r}
+mpg.obj = read.csv("EPAGAS.csv")
+head(mpg.obj)
+```
+
+# Task 3 
+
+## 
+```{r}
+mpg = mpg.obj$MPG
+z = (mpg-mean(mpg))/sd(mpg)
+mean(z)
+sd(z)
+```
+
+## 
+
+>
+  The values of mpg that are possible outliers are:
+  
+```{r}
+mpg[abs(z)>=2 & abs(z)<=3] 
+```
+
+## 
+
+> 
+  The values of mpg that are defined as outliers are:
+  
+```{r}
+mpg[abs(z)>3]
+```
+  
+##
+
+```{r}
+dplot = ifelse(abs(z)>3, "Red",
+        ifelse(abs(z)>=2 &abs(z)<=3,"Blue", "Black"))
+library(lattice)
+dotplot(z,col=dplot)
+  
+```
+
+# Task 4
+
+```{r}
+boxplot(mpg,col="Green",data=mpg.obj, notch=TRUE, horizontal = TRUE)
+title("Boxplot representation of MPG")
+
+```
+
+##
+
+>
+  Using Chebyshev's theorem the proportion of data within 2 standard deviations of the mean of the mpg data is 75%.
+
+```{r}
+k = 2; 
+(1-1/(k)^2) 
+```
+
+##
+
+>
+  Using R the exact, proportion within 2 standard deviation of the mean is 96%.
+  
+```{r}
+length(z[abs(z)<2])/length(z)
+```
+
+##
+>
+  No
+  
+##
+>
+  Using Empirical rule, approximately 95% of the data should be within 2 standard deviations of the mean.
+  
+##
+>
+  It corresponds
+  
+##
+>
+  Yes the Empirical rule is valid in this case because the data has a normal distribution.
