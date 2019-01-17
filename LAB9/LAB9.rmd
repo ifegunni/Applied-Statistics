@@ -1,0 +1,354 @@
+---
+title: "LAB9"
+author: "Jonathan Ifegunni"
+date: "October 18, 2018"
+output: 
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#TASK 1
+```{r}
+getwd()
+```
+
+#TASK 2
+## 
+###  LINE A
+Line A takes n*iter samples from the random variable x with replacement.
+
+### Line B
+Calculates the confidence interval of the statistic vector, stat. These are the values that fall between alpha/2 and 1-alpha/2
+
+### Explain what you see (replace=TRUE)
+
+```{r}
+set.seed(35) # This will give everyone the same sample
+sam=round(rnorm(20,mean=10,sd=4),2)
+unique(sample(sam,20,replace=TRUE) ) # repeat this line 5Xs
+```
+
+> 
+  I noticed that each time I reran the last line, the number of samples generated changed from 12-14-14-15-11 samples. Also, all the samples are unique.
+
+### Explain what you see
+(replace=FALSE)
+```{r}
+unique(sample(sam,20,replace=FALSE) ) # repeat this line 5Xs
+```
+
+>
+  For this case, the number of samples generated remain the same for every run of the last line. Also, all the samples are unique.
+
+### What happens and why?
+```{r}
+#unique(sample(sam,21,replace=FALSE) ) # repeat this line 5Xs
+```
+
+>
+  R studio returns an error message.  This is because we cannot take 21 samples from a population of 20 without replacement.
+ 
+#Task 3
+
+##
+```{r}
+myboot2<-function(iter=10000,x,fun="mean",alpha=0.05,cx=1.5,...){  #Notice where the ... is repeated in the code
+  n=length(x)   #sample size
+  
+  y=sample(x,n*iter,replace=TRUE)
+  rs.mat=matrix(y,nr=n,nc=iter,byrow=TRUE)
+  xstat=apply(rs.mat,2,fun) # xstat is a vector and will have iter values in it 
+  ci=quantile(xstat,c(alpha/2,1-alpha/2))# Nice way to form a confidence interval
+  # A histogram follows
+  # The object para will contain the parameters used to make the histogram
+  para=hist(xstat,freq=FALSE,las=1,
+            main=paste("Histogram of Bootstrap sample statistics","\n","alpha=",alpha," iter=",iter,sep=""),
+            ...)
+  
+  #mat will be a matrix that contains the data, this is done so that I can use apply()
+  mat=matrix(x,nr=length(x),nc=1,byrow=TRUE)
+  
+  #pte is the point estimate
+  #This uses whatever fun is
+  pte=apply(mat,2,fun)
+  abline(v=pte,lwd=3,col="Black")# Vertical line
+  segments(ci[1],0,ci[2],0,lwd=4)      #Make the segment for the ci
+  text(ci[1],0,paste("(",round(ci[1],2),sep=""),col="Red",cex=cx)
+  text(ci[2],0,paste(round(ci[2],2),")",sep=""),col="Red",cex=cx)
+  
+  # plot the point estimate 1/2 way up the density
+  text(pte,max(para$density)/2,round(pte,2),cex=cx)
+  
+  return(list(ci=ci,fun=fun,x=x))# Some output to use if necessary
+}
+
+################### END mybooot function #####################
+
+# set.seed(39); sam=rnorm(25,mean=25,sd=10)
+# myboot2(10000,x=sam,fun="mean",alpha=0.05,xlab="mean",col="Purple",cx=1.5)
+
+# A
+set.seed(39); sam=rnorm(25,mean=25,sd=10)
+myboot2(10000,x=sam,fun="mean",alpha=0.05,xlab="mean",col="Purple",cx=1.5)
+# B
+set.seed(30); sam=rchisq(20,df=3)
+myboot2(10000,x=sam,fun="mean",alpha=0.05,xlab="mean",col="Purple",cx=1.5)
+# C
+set.seed(40); sam=rgamma(30,shape=2,scale=3)
+myboot2(10000,x=sam,fun="mean",alpha=0.05,xlab="mean",col="Purple",cx=1.5)
+# D
+set.seed(10); sam=rbeta(20,shape1=3,shape2=4)
+myboot2(10000,x=sam,fun="mean",alpha=0.05,xlab="mean",col="Purple",cx=1.5)
+```
+
+##
+```{r}
+# means 
+# for A, mean  =25
+set.seed(39); sam=rnorm(25,mean=25,sd=10)
+mean(sam)
+# for B, mean of a chi_squared is df =3
+set.seed(30); sam=rchisq(20,df=3)
+mean(sam)
+# C
+set.seed(40); sam=rgamma(30,shape=2,scale=3)
+mu_gamma = 2*3 # mean = shape * scale;
+mu_gamma
+# D
+set.seed(10); sam=rbeta(20,shape1=3,shape2=4)
+mu_beta = 3/(3+4)
+mu_beta
+```
+
+>
+  A -the mean of the normal distribution is 23.. Therefore, the point estimate of  23.88 is very close (it is 0.112 sd's away from the population mean)
+>
+  B -  the mean of the chi-squared distributed population is the degrees of freedom df =3. Therefore, the point estimate of 2.94 is very close.
+>
+  C - the mean of the Gamma population is 6. The point estimate is 6.5 which is still pretty close .
+>
+  D - the mean of the beta population is about 0.428 . The point estimate of 0.41 is a very good approximation
+
+##
+Yes, for all the generated samples, the interval contains the population values
+
+##
+
+```{r}
+
+# 80% ci's
+# A
+set.seed(39); sam=rnorm(25,mean=25,sd=10)
+myboot2(10000,x=sam,fun="mean",alpha=0.2,xlab="mean",col="Purple",cx=1.5)
+# B
+set.seed(30); sam=rchisq(20,df=3)
+myboot2(10000,x=sam,fun="mean",alpha=0.2,xlab="mean",col="Purple",cx=1.5)
+# C
+set.seed(40); sam=rgamma(30,shape=2,scale=3)
+myboot2(10000,x=sam,fun="mean",alpha=0.2,xlab="mean",col="Purple",cx=1.5)
+# D
+set.seed(10); sam=rbeta(20,shape1=3,shape2=4)
+myboot2(10000,x=sam,fun="mean",alpha=0.2,xlab="mean",col="Purple",cx=1.5)
+```
+
+#TASK 4
+##A)
+```{r}
+myboot3<-function(iter=10000,x,fun="mean",alpha=0.05,cx=1.5,...){  #Notice where the ... is repeated in the code
+  n=length(x)   #sample size
+  
+  y=sample(x,n*iter,replace=TRUE)
+  rs.mat=matrix(y,nr=n,nc=iter,byrow=TRUE)
+  xstat=apply(rs.mat,2,fun) # xstat is a vector and will have iter values in it 
+  ci=quantile(xstat,c(alpha/2,1-alpha/2))# Nice way to form a confidence interval
+  # A histogram follows
+  # The object para will contain the parameters used to make the histogram
+  para=hist(xstat,freq=FALSE,las=1,
+            main=paste("Histogram of Bootstrap sample statistics","\n","alpha=",alpha," iter=",iter,sep=""),
+            ...)
+  
+  #mat will be a matrix that contains the data, this is done so that I can use apply()
+  mat=matrix(x,nr=length(x),nc=1,byrow=TRUE)
+  
+  #pte is the point estimate
+  #This uses whatever fun is
+  pte=apply(mat,2,fun)
+  abline(v=pte,lwd=3,col="Black")# Vertical line
+  segments(ci[1],0,ci[2],0,lwd=4)      #Make the segment for the ci
+  text(ci[1],0,paste("(",round(ci[1],2),sep=""),col="Red",cex=cx)
+  text(ci[2],0,paste(round(ci[2],2),")",sep=""),col="Red",cex=cx)
+  
+  # plot the point estimate 1/2 way up the density
+  text(pte,max(para$density)/2,round(pte,2),cex=cx)
+  
+  return(list(ci=ci,fun=fun,x=x,xstat=xstat))# Some output to use if necessary
+}
+
+sam=c(1,1,1,2,2,2,2,3,3,3,4,4)
+myb3 = myboot3(10000,x=sam,fun="median",alpha=0.2,xlab="mean",col="Purple",cx=1.5)
+tab = table(myb3$xstat)
+barplot(tab, beside = TRUE, col = rainbow(7), main = "Barplot of xstat", xlab = "median",ylab = "Frequency")
+
+```
+
+##B) 
+The Bootstrap interval estimate  for the median is (2,3).
+
+#TASK 5
+
+##
+```{r}
+# 95% estimate, alpha = 0.05 for fun =mean/median
+myboot2<-function(iter=10000,x,fun="mean",alpha=0.05,cx=1.5,...){  #Notice where the ... is repeated in the code
+  n=length(x)   #sample size
+  
+  y=sample(x,n*iter,replace=TRUE)
+  rs.mat=matrix(y,nr=n,nc=iter,byrow=TRUE)
+  xstat=apply(rs.mat,2,fun) # xstat is a vector and will have iter values in it 
+  ci=quantile(xstat,c(alpha/2,1-alpha/2))# Nice way to form a confidence interval
+  # A histogram follows
+  # The object para will contain the parameters used to make the histogram
+  para=hist(xstat,freq=FALSE,las=1,
+            main=paste("Histogram of Bootstrap sample statistics","\n","alpha=",alpha," iter=",iter,sep=""),
+            ...)
+  
+  #mat will be a matrix that contains the data, this is done so that I can use apply()
+  mat=matrix(x,nr=length(x),nc=1,byrow=TRUE)
+  
+  #pte is the point estimate
+  #This uses whatever fun is
+  pte=apply(mat,2,fun)
+  abline(v=pte,lwd=3,col="Black")# Vertical line
+  segments(ci[1],0,ci[2],0,lwd=4)      #Make the segment for the ci
+  text(ci[1],0,paste("(",round(ci[1],2),sep=""),col="Red",cex=cx)
+  text(ci[2],0,paste(round(ci[2],2),")",sep=""),col="Red",cex=cx)
+  
+  # plot the point estimate 1/2 way up the density
+  text(pte,max(para$density)/2,round(pte,2),cex=cx)
+  
+  return(list(ci=ci,fun=fun,x=x))# Some output to use if necessary
+}
+# A
+set.seed(39); sam=rnorm(25,mean=25,sd=10)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.05,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+# B
+set.seed(30); sam=rchisq(20,df=3)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.05,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+
+# C 
+set.seed(40); sam=rgamma(30,shape=2,scale=3)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.05,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+
+# D 
+set.seed(10); sam=rbeta(20,shape1=3,shape2=4)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.05,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+
+```
+
+## 70% INTERVAL
+```{r}
+# For 70% intervals
+# A
+set.seed(39); sam=rnorm(25,mean=25,sd=10)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.3,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+# B
+set.seed(30); sam=rchisq(20,df=3)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.3,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+
+# C 
+set.seed(40); sam=rgamma(30,shape=2,scale=3)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.3,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+
+# D 
+set.seed(10); sam=rbeta(20,shape1=3,shape2=4)
+myboot2(10000,x=sam,fun=function(x) mean(x)/median(x),alpha=0.3,xlab="mean(x)/median(x)",col="Purple",cx=1.5)
+```
+
+#TASK 6
+##
+```{r}
+? distributions
+```
+
+##
+```{r}
+# Uniform, Weibull, Exponential
+# Generate samples of size 20
+# Uniform
+set.seed(39); sam=runif(20,min = 0,max = 3)
+unique(sample(sam,20,replace=FALSE) )
+
+# Weibull
+set.seed(30); sam=rweibull(20,shape = 2, scale = 3)
+unique(sample(sam,20,replace=FALSE) )
+# Exponential
+set.seed(40);sam=rexp(20,rate = 2)
+unique(sample(sam,20,replace=FALSE) )
+# Binomial
+set.seed(10); sam=rbinom(20,40,0.6)
+sam
+```
+
+##
+```{r}
+# 80% ci
+# Uniform
+sam=runif(20,min = 0,max = 3)
+myboot2(10000,x=sam,fun=function(x) mean(x),alpha=0.2,xlab="mean(x)",col="Purple",cx=1.5)
+myboot2(10000,x=sam,fun=function(x) var(x),alpha=0.2,xlab="var(x)",col="Green",cx=1.5)
+# Weibull
+sam=rweibull(20,shape = 2, scale = 3)
+myboot2(10000,x=sam,fun=function(x) mean(x),alpha=0.2,xlab="mean(x)",col="Purple",cx=1.5)
+myboot2(10000,x=sam,fun=function(x) var(x),alpha=0.2,xlab="var(x)",col="Green",cx=1.5)
+# Exponential
+sam=rexp(20,rate = 2)
+myboot2(10000,x=sam,fun=function(x) mean(x),alpha=0.2,xlab="mean(x)",col="Purple",cx=1.5)
+myboot2(10000,x=sam,fun=function(x) var(x),alpha=0.2,xlab="var(x)",col="Green",cx=1.5)
+# Binomial
+sam=rbinom(20,40,0.6)
+myboot2(10000,x=sam,fun=function(x) mean(x),alpha=0.2,xlab="mean(x)",col="Purple",cx=1.5)
+myboot2(10000,x=sam,fun=function(x) var(x),alpha=0.2,xlab="var(x)",col="Green",cx=1.5)
+```
+
+#TASK 7
+```{r}
+# first stat mean(x)/sd(x)
+set.seed(68); sam=rnorm(20,mean=10,sd=4)
+myboot2(10000,x=sam,fun=function(x) mean(x)/sd(x),alpha=0.2,xlab="(mean(x))/sd(x)",col="Purple",cx=1.5)
+# 2nd stat IQR(x)
+myboot2(10000,x=sam,fun=function(x) IQR(x),alpha=0.2,xlab="IQR(x)",col="Purple",cx=1.5)
+
+set.seed(68); sam=rnorm(20,mean=10,sd=4)
+
+xstat=sam# xstat is a vector and will have iter values in it 
+alpha = 0.05;
+ci=quantile(xstat,c(alpha/2,1-alpha/2))
+
+
+set.seed(68); sam=rnorm(20,mean=10,sd=4)
+mu_sam = mean(sam)
+mu_sam
+sd_sam = sd(sam)
+sd_sam
+qnorm(1-0.05/2,mean=mu_sam,sd=sd_sam)
+qnorm(0.05/2, mean =mu_sam, sd =sd_sam)
+myboot2(10000,x=sam,fun=function(x) mean(x),alpha=0.05,xlab="mean(x)",col="Purple",cx=1.5)
+```
+
+
+
+
+
+
+
+
+
+
